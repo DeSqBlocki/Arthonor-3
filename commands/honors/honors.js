@@ -163,7 +163,7 @@ async function honorCheck(interaction) {
 }
 async function honorMenu(interaction) {
     const embed = new EmbedBuilder()
-        .setTitle('- Honor Menu WIP! -')
+        .setTitle('- Honor Menu! -')
         .setDescription('- Choose someone from the Select Menu below\r\n- Choose Honor Dishonor, or History\r\n- Confirm your Selection')
         .setThumbnail(interaction.guild.iconURL())
     const row = new ActionRowBuilder()

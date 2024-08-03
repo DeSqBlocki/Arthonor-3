@@ -27,8 +27,11 @@ client.aliases = new Collection() // list of command aliases
 client.buttons = new Collection() // list of buttons
 client.selectMenus = new Collection() // list of selectMenus
 
+// Initialize DisTube with YtDlpPlugin and request options
 const distube = new DisTube(client, {
-	plugins: [new YtDlpPlugin({ update: true })],
+	plugins: [
+	  new YtDlpPlugin(),
+	],
   });
 
 client.distube = distube
@@ -37,4 +40,6 @@ fs.readdirSync('./handlers').forEach((handler) => {
 	require(`./handlers/${handler}`)(client)
   });
 
+
+distube.on('error', (channel, error) => {client.emit('DistubeError', (channel, error))})  
 client.login(process.env.D_Token)

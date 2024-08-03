@@ -8,10 +8,12 @@ module.exports = {
     async execute(interaction) {
         let temp = await interaction.message.embeds[0].description.split(' ')
         var honor
-        if (temp[5].slice(2, -2) == 'Honor') {
+        if (temp[5] === '**Honor**') {
             honor = 1
-        } else {
+        } else if (temp[5] === '**Dishonor**'){
             honor = -1
+        } else {
+            return await interaction.reply({content: "ERROR", ephemeral: true})
         }
         const target = await interaction.message.guild.members.fetch(temp[3].slice(2, -1))
         temp = interaction.message.embeds[0].description.split('\r\n')
@@ -31,12 +33,12 @@ module.exports = {
         var newThumbnail
 
         if (honor == 1) {
-            description = `Willst du wirklich <@${target.id}> einen Honor geben?\r\n[Grund: ${reason}]`
+            description = `Willst du wirklich <@${target.id}> einen **Honor** geben?\r\n[Grund: ${reason}]`
             newTitle = 'Honor Up!'
             newDescription = `<@${target.id}> erhält einen Honor!\r\n[Grund: ${reason}]`
             newThumbnail = "https://cdn.discordapp.com/emojis/748176295535443968.webp"
         } else {
-            description = `Willst du wirklich <@${target.id}> einen Dishonor geben?\r\n[Grund: ${reason}]`
+            description = `Willst du wirklich <@${target.id}> einen **Dishonor** geben?\r\n[Grund: ${reason}]`
             newTitle = 'Honor Down!'
             newDescription = `<@${target.id}> erhält einen Dishonor!\r\n[Grund: ${reason}]`
             newThumbnail = "https://cdn.discordapp.com/emojis/748176295132790786.webp"

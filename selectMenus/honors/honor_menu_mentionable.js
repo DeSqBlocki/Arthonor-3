@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, MentionableSelectMenuBuilder, UserSelectMenuBuilder, PermissionFlagsBits } = require("discord.js")
+const { EmbedBuilder, ActionRowBuilder, UserSelectMenuBuilder, PermissionFlagsBits } = require("discord.js")
 const { mClient } = require("../..")
 require('dotenv').config()
 
@@ -20,17 +20,16 @@ module.exports = {
 
             const member = interaction.message.guild.members.cache.get(target.user.id)
             const memberRoles = member.roles.cache
-            .filter((roles) => roles.id !== interaction.message.guild.id)
-            .map((role) => role.toString())
-            // var userHas = member.permissions.toArray() // Scratched Idea for Menu
-            
+                .filter((roles) => roles.id !== interaction.message.guild.id)
+                .map((role) => role.toString())
+
             const description = String(`${target} - ${target.user.globalName ?? target.user.username} - ${target.user.id}\r\n\r\n${memberRoles}`).replaceAll(',', ' ')
             embed.setTitle(`- User Stats -`)
                 .setDescription(description)
                 .addFields({
                     name: 'Current Honor Level:', value: `${theirHonorLevel?.honors ?? 0}`, inline: true
                 })
-                .setFooter({text: 'Honor Level updaten sich nicht automatisch!'})
+                .setFooter({ text: 'Honor Level updaten sich nicht automatisch!' })
         }
         const select = new ActionRowBuilder()
             .addComponents(
@@ -38,8 +37,6 @@ module.exports = {
                     .setCustomId('honor_menu_mentionable')
                     .setPlaceholder('Select a User')
             )
-
-
 
         const row = interaction.message.components[1]
         await interaction.update({
