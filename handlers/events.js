@@ -8,10 +8,10 @@ module.exports = (client) => {
         const filePath = path.join(eventsPath, file)
         const event = require(filePath)
         if (event.once) {
-            client.once(event.name, (...args) => event.execute(...args))
+            client.once(event.name, (...args) => event.execute(...args, client))
             // added client to commomerate global usage
         } else {
-            client.on(event.name, (...args) => event.execute(...args))
+            client.on(event.name, (...args) => event.execute(...args, client))
             // added client to commomerate global usage
         }
     }
