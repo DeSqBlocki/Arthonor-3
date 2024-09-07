@@ -1,17 +1,11 @@
 /*
-Add
-Delete
-Random
-Random By Person
-Direct Search by ID
-
 Random By Year?
-List?
-Counter (Leaderboard?)
+Counter (Leaderboard)
 */
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, UserSelectMenuBuilder } = require('discord.js')
 const { mClient } = require('../..')
 require('dotenv').config()
+function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
 async function quotesAdd(interaction) {
     const messageLink = await interaction.options.getString('link')
@@ -108,7 +102,7 @@ async function quotesSearch(interaction) {
     const found = await quotesColl.findOne({ messageID: id })
     if (!found) { return await interaction.reply({ content: 'ID not found!', ephemeral: true }) }
 
-    
+
     const guild = await interaction.client.guilds.fetch(found.guildID)
     const channel = await guild.channels.fetch(found.channelID)
     const message = await channel.messages.fetch(found.messageID)
@@ -122,9 +116,9 @@ async function quotesSearch(interaction) {
 
     quotesColl.findOneAndUpdate({
         messageID: found.messageID
-    },{
-        $inc: { count: 1}
-    },{
+    }, {
+        $inc: { count: 1 }
+    }, {
         upsert: true
     })
 
@@ -166,18 +160,18 @@ async function quotesRandom(interaction) {
     const db = mClient.db(process.env.M_DB)
     const quotesColl = db.collection('quotes')
     var rdm
-    if(user){
+    if (user) {
         rdm = await quotesColl.aggregate([
-            { 
-                $match: { by: user.id},
-            },{
-                $sample: { size: 1 } 
+            {
+                $match: { by: user.id },
+            }, {
+                $sample: { size: 1 }
             }
         ]).toArray()
     } else {
         rdm = await quotesColl.aggregate([
-            { 
-                $sample: { size: 1 } 
+            {
+                $sample: { size: 1 }
             }
         ]).toArray()
     }
@@ -196,9 +190,9 @@ async function quotesRandom(interaction) {
 
     quotesColl.findOneAndUpdate({
         messageID: found.messageID
-    },{
-        $inc: { count: 1}
-    },{
+    }, {
+        $inc: { count: 1 }
+    }, {
         upsert: true
     })
 
@@ -258,7 +252,7 @@ async function quotesList(interaction) {
                 .setCustomId('quotes_list_right')
                 .setStyle(ButtonStyle.Primary)
         )
-        
+
     const select = new ActionRowBuilder()
         .addComponents(
             new UserSelectMenuBuilder()
@@ -272,12 +266,74 @@ async function quotesList(interaction) {
         ephemeral: true
     })
 
-
-
 }
 async function quotesLeaderboard(interaction) {
-    // need to add count to quotes
+    const db = mClient.db(process.env.M_DB)
+    const quotesColl = db.collection('quotes')
+    let skip = 0
+    const minValue = 0
+    const maxValue = await quotesColl.countDocuments({ $and: [{ guildID: interaction.guild.id }, { count: { $gt: 0 } }] })
+    
+    const quotesData = await quotesColl.find({}).sort({ count: -1, messageID: -1 }).skip(skip).limit(5).toArray()
+    const fields = []
+
+    const guild = await interaction.client.guilds.fetch(interaction.guild.id)
+    quotesData.forEach(async (data, index) => {
+
+        let channel = await guild.channels.fetch(data.channelID)
+        let message = await channel.messages.fetch(data.messageID)
+        
+        await delay(500)
+        let timestamp = new Date(message.createdTimestamp)
+        fields.push({
+            name: `${index + 1}.`,//`\u200b` ,
+            value: `[#${data.messageID}](https://discord.com/channels/${data.guildID}/${data.channelID}/${data.messageID})\r\n**by** <@${data.by}>  • ⭐ ${data.count}\r\n_Posted on **${timestamp}**_\r\n${message.content}`
+        })
+        
+    })
+    
+    
+    await delay(5000)
+    console.log(fields)
+    quotesData.sort((a,b) => {
+        const numA = parseInt(a.name);
+        const numB = parseInt(b.name);
+        return numA - numB;
+    })
+    console.log(fields)
+
+    const embed = new EmbedBuilder()
+        .setTitle('- Quotes Leaderboard -')
+        .setThumbnail('https://cdn.discordapp.com/attachments/1152723542836772914/1152940755539722240/pngwing.com.png')
+        .setFields(fields)
+        .setColor('#5865F2')  // Discord's blurple color
+        .setFooter({ text: `Use ◄ ► to navigate\r\n${skip}` });
+
+    const row = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setLabel('◄')
+                .setStyle(ButtonStyle.Primary)
+                .setCustomId('quotes_leaderboard_left')
+        )
+        .addComponents(
+            new ButtonBuilder()
+                .setLabel('X')
+                .setStyle(ButtonStyle.Danger)
+                .setCustomId('abort')
+        )
+        .addComponents(
+            new ButtonBuilder()
+                .setLabel('►')
+                .setStyle(ButtonStyle.Primary)
+                .setCustomId('quotes_leaderboard_right')
+        )
+    await interaction.editReply({
+        embeds: [embed],
+        components: [row]
+    })
 }
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('quotes')
@@ -326,6 +382,7 @@ module.exports = {
                 quotesRandom(interaction)
                 break;
             case 'leaderboard':
+                await interaction.deferReply()
                 quotesLeaderboard(interaction)
                 break;
             case 'list':

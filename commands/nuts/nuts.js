@@ -129,7 +129,9 @@ async function nutsLeaderboard(interaction) {
     const embed = new EmbedBuilder()
         .setTitle('Nuts Leaderboard')
         .setThumbnail('https://cdn.discordapp.com/attachments/1152723542836772914/1152940755539722240/pngwing.com.png')
-        .setDescription(fields.toString());
+        .setDescription(fields.toString())
+        .setColor('#5865F2')  // Discord's blurple color
+        .setFooter({ text: 'Use ◄ ► to navigate' });
     await interaction.editReply({
         embeds: [embed],
         components: [row]
@@ -192,7 +194,9 @@ async function nutsCooldown(interaction) {
     let content = `Du kannst wieder nussen! :)`
     let thumbnail = 'https://cdn-icons-png.flaticon.com/512/7451/7451659.png'
     let title = 'Go Nuts!'
-    if (cooldown) {
+
+    let date = (Date.now() / 1000)
+    if (cooldown.cooldown > date) {
         content = `<t:${cooldown.cooldown}:R> kannst du wieder nussen! ;)`
         thumbnail = 'https://cdn.discordapp.com/attachments/1152723542836772914/1152987472788193361/No-nuts-PhotoRoom.png-PhotoRoom.png'
         title = 'To Nut or Not to Nut...'
@@ -213,6 +217,8 @@ async function nutsNut(interaction) {
     const cdColl = db.collection('cooldown')
 
     const cdData = await cdColl.findOne({ userID: interaction.user.id })
+    const embed = new EmbedBuilder()
+        .setThumbnail('https://cdn.discordapp.com/attachments/1152723542836772914/1152991361113538621/png-transparent-subscription-box-label-bag-mysterious-miscellaneous-purple-blue-thumbnail-PhotoRoom.png-PhotoRoom.png')
 
     let content
     const images = {
@@ -259,10 +265,13 @@ async function nutsNut(interaction) {
     } else {
         content = `Du kannst erst <t:${Math.floor(cdData?.cooldown)}:R> wieder nussen :(`
         image = images["onCD"]
+        await delay(1000)
+        embed.setDescription(content)
+        embed.setThumbnail(image)
+        return await interaction.editReply({
+            embeds: [embed]
+        })
     }
-
-    const embed = new EmbedBuilder()
-        .setThumbnail('https://cdn.discordapp.com/attachments/1152723542836772914/1152991361113538621/png-transparent-subscription-box-label-bag-mysterious-miscellaneous-purple-blue-thumbnail-PhotoRoom.png-PhotoRoom.png')
 
     await interaction.editReply({
         embeds: [embed]

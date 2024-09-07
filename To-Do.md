@@ -1,0 +1,9 @@
+- quotes leaderboard (count)
+- quotes filter by channel
+- event creation + reminder 1h before
+- birthday role
+- 8ball (neue Antworten)
+- avatar
+- mittwoch
+- wetter
+- WGE (help)

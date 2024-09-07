@@ -1,15 +1,32 @@
 const { Events } = require('discord.js');
 const { createCanvas, loadImage } = require('canvas');
 const path = require('node:path');
+const { mClient } = require('..');
 require('dotenv').configDotenv();
 
 module.exports = {
     name: Events.GuildMemberAdd,
     once: false,
     async execute(member, client) {
-        const guild = client.guilds.cache.get(process.env.D_GuildID);
-        const channel = guild.channels.cache.get(process.env.D_WelcomeID);
         console.log(`${member.user.username} joined the Server`);
+        const db = mClient.db(process.env.DB)
+        const channelsColl = db.collection('channels')
+        const found = await channelsColl.find(
+            {
+                $and: [
+                    { guildID: member.guild.id },
+                    { purpose: 'welcome' }
+                ]
+            }
+        ).toArray()
+
+        if (!found) {
+            return console.log('Channel not yet set for welcome!')
+        }
+
+
+        const guild = client.guilds.cache.get(found[0].guildID);
+        const channel = guild.channels.cache.get(found[0].channelID);
 
         // Create Canvas
         let canvasWidth = 600;
@@ -44,7 +61,7 @@ module.exports = {
         ctx.strokeStyle = '#000000'; // Black outline
         ctx.lineWidth = 3; // Thickness of the outline
 
-        let text = `Willkommen, ${member.user.username}!`;
+        let text = `Willkommen, ${member.user.globalName?member.user.globalName:member.user.username}!`;
         let textWidth = ctx.measureText(text).width;
         let textX = canvas.width / 2 - textWidth / 2;
         let textHeight = 35; // Approximate height of the text
@@ -63,10 +80,8 @@ module.exports = {
         ctx.strokeText(text, textX, 100 + pfp.height);
         ctx.fillText(text, textX, 100 + pfp.height);
 
-        const banner = canvas.toBuffer();
-
         channel.send({
-            content: `Bitte guck einmal in die <#850491176540700703> ${member}`,
+            content: `Bitte guck einmal in die <#455023824791011338> ${member}`,
             files: [{
                 attachment: banner,
                 name: 'banner.png',

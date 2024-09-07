@@ -9,14 +9,14 @@ const client = new Client({
 	intents: [
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildMembers,
-		GatewayIntentBits.GuildMessages, 
-		GatewayIntentBits.GuildPresences, 
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildPresences,
 		GatewayIntentBits.GuildMessageReactions,
-		GatewayIntentBits.GuildVoiceStates, 
+		GatewayIntentBits.GuildVoiceStates,
 		GatewayIntentBits.DirectMessages,
-		GatewayIntentBits.MessageContent
-	], 
-	partials: [Partials.Channel, Partials.Message, Partials.User, Partials.GuildMember, Partials.Reaction] 
+		GatewayIntentBits.MessageContent,
+	],
+	partials: [Partials.Channel, Partials.Message, Partials.User, Partials.GuildMember, Partials.Reaction]
 });
 exports.client = client
 
@@ -28,6 +28,6 @@ client.selectMenus = new Collection() // list of selectMenus
 
 fs.readdirSync('./handlers').forEach((handler) => {
 	require(`./handlers/${handler}`)(client)
-  });
+});
 
-  client.login(process.env.D_Token)
+client.login(process.env.D_Token)

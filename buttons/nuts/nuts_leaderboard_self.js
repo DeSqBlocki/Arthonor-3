@@ -32,7 +32,9 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setTitle('Nuts Leaderboard')
             .setThumbnail('https://cdn.discordapp.com/attachments/1152723542836772914/1152940755539722240/pngwing.com.png')
-            .setDescription(fields.toString());
+            .setDescription(fields.toString())
+            .setColor('#5865F2')  // Discord's blurple color
+        .setFooter({ text: 'Use ◄ ► to navigate' });
         await interaction.update({
             embeds: [embed],
             components: [interaction.message.components[0]]
